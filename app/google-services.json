@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "707661393059",
+    "firebase_url": "https://empat-da7fe.firebaseio.com",
+    "project_id": "empat-da7fe",
+    "storage_bucket": "empat-da7fe.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:707661393059:android:6ef6a2c43dec0c308ba316",
+        "android_client_info": {
+          "package_name": "com.example.empat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "707661393059-jjugaenvlp10hno2k4vokmgc8r3k8762.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.empat",
+            "certificate_hash": "ffbb8cf9f052e046ebf9b66cf6f6e54ed47de57b"
+          }
+        },
+        {
+          "client_id": "707661393059-apsctd5nua47a194hfbp22f39vs5n7g5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2psWSWUhJlKsKDHzchfo3cwzS1RmQZ1I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "707661393059-apsctd5nua47a194hfbp22f39vs5n7g5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
