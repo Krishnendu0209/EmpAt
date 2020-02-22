@@ -10,6 +10,8 @@ import android.widget.Button;
 
 import com.example.empat.R;
 
+import java.util.Objects;
+
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -18,7 +20,7 @@ public class FeatureDisplayFragment extends Fragment
     private static final String CURRENT_USER_TYPE = "current_user_type";
     private static final String CURRENT_EMPLOYEE_CODE = "current_employee_code";
     private int userType;
-
+    private String employeeCode;
     private Button registerEmployee,submitAttendance, getAttendanceReport;
     public FeatureDisplayFragment()
     {
@@ -67,6 +69,8 @@ public class FeatureDisplayFragment extends Fragment
                     @Override
                     public void onClick(View v)
                     {
+                        Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, SubmitAttendanceFragment.newInstance(employeeCode)) // launch the home fragment if login is successful
+                                    .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).commit();
 
                     }
                 });
@@ -87,6 +91,7 @@ public class FeatureDisplayFragment extends Fragment
         if(getArguments() != null)
         {
             userType = getArguments().getInt(CURRENT_USER_TYPE);
+            employeeCode = getArguments().getString(CURRENT_EMPLOYEE_CODE);
         }
         registerEmployee = view.findViewById(R.id.register_employee_button);
         submitAttendance = view.findViewById(R.id.submit_attendance_button);

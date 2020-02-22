@@ -42,8 +42,8 @@ public class EmployeeRegisterFragment extends Fragment
     private Button registerButton;
     private ProgressBar progressBar;
     public static final String EMPTY_STRING = "";
-    private String employeeCode, employeeFullName,employeePhoneNumber, employeeEmail, userPassword, confirmUserPassword;
-    private DatabaseReference userDataBase;
+    private String employeeCode, employeeFullName, employeePhoneNumber, employeeEmail, userPassword, confirmUserPassword;
+    private DatabaseReference userDataBase,employeeAttendance;
     private FirebaseAuth firebaseAuth;
 
     public EmployeeRegisterFragment()
@@ -224,13 +224,14 @@ public class EmployeeRegisterFragment extends Fragment
                 }
                 else
                 {
-                    String user_id = Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid();
                     EmployeeProfileDetails employeeProfileDetails = new EmployeeProfileDetails(employeeCode, employeeFullName, employeePhoneNumber, employeeEmail, userPassword);
                     userDataBase = FirebaseDatabase.getInstance().getReference(); // Add the reference
+                    employeeAttendance = FirebaseDatabase.getInstance().getReference();
                     userDataBase.child("Employee Profiles").child(employeeCode).setValue(employeeProfileDetails).addOnSuccessListener(new OnSuccessListener<Void>()
                     {
                         public void onSuccess(Void aVoid) // If the task is successful i. e registration successful
                         {
+                            employeeAttendance.child("Employee Attendance").child(employeeCode).setValue(true);
                             progressBar.setVisibility(View.GONE);
                             Toast.makeText(getContext(), "Registration Successful", Toast.LENGTH_SHORT).show();
 //                            Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, HomeFragment.newInstance()) // launch the home fragment if login is successful
@@ -247,5 +248,4 @@ public class EmployeeRegisterFragment extends Fragment
             }
         });
     }
-
 }
