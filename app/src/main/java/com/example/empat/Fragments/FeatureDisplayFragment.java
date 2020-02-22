@@ -57,32 +57,33 @@ public class FeatureDisplayFragment extends Fragment
                         {
                             getFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, EmployeeRegisterFragment.newInstance())
                                     .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
-                                    .addToBackStack("Admin Register").commit();
+                                    .addToBackStack("User Register").commit();
                         }
                     }
                 });
             }
-            else
+            else if(userType == 2)
             {
-                submitAttendance.setOnClickListener(new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View v)
-                    {
-                        Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, SubmitAttendanceFragment.newInstance(employeeCode)) // launch the home fragment if login is successful
-                                    .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).commit();
-
-                    }
-                });
-                getAttendanceReport.setOnClickListener(new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View v)
-                    {
-                        //Yet to be implemented
-                    }
-                });
+                registerEmployee.setVisibility(View.INVISIBLE);
             }
+            submitAttendance.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, SubmitAttendanceFragment.newInstance(employeeCode)) // launch the home fragment if login is successful
+                            .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).commit();
+
+                }
+            });
+            getAttendanceReport.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    //Yet to be implemented
+                }
+            });
         }
         return view;
     }

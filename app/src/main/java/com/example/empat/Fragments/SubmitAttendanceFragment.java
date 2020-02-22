@@ -148,10 +148,9 @@ public class SubmitAttendanceFragment extends Fragment
                         Log.e("Attendance Status Check", "Data interchange failed. Exception: <<< " + e.getMessage() + " >>>.");
                     }
                 }
-                else//no entry in database for present date till now -- First entry for the employee
+                else
                 {
                     updateViewsForCheckIn();
-                    employeeCheckInCheckOutDatabaseReference.child(currentDate).setValue(true);//The Root reference
                 }
             }
 

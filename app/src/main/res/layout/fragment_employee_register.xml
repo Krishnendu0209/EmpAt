@@ -73,7 +73,27 @@
         android:gravity="center"
         android:hint="Confirm Password"
         android:inputType="textPassword" />
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/rgUserType"
+        android:checkedButton="@id/other">
 
+        <RadioButton
+            android:id="@+id/admin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight=".5"
+            android:text="Admin" />
+
+        <RadioButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight=".5"
+            android:text="Other"
+            android:id="@+id/other"/>
+    </RadioGroup>
 
     <Button
         android:id="@+id/register_button"

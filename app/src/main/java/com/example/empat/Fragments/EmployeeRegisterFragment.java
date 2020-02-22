@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.example.empat.Model.EmployeeProfileDetails;
@@ -42,10 +44,11 @@ public class EmployeeRegisterFragment extends Fragment
     private Button registerButton;
     private ProgressBar progressBar;
     public static final String EMPTY_STRING = "";
-    private String employeeCode, employeeFullName, employeePhoneNumber, employeeEmail, userPassword, confirmUserPassword;
+    private String employeeCode, employeeFullName, employeePhoneNumber, employeeEmail, userPassword, confirmUserPassword, userType;
     private DatabaseReference userDataBase,employeeAttendance;
     private FirebaseAuth firebaseAuth;
-
+    private RadioButton admin, other;
+    private RadioGroup rgUserType;
     public EmployeeRegisterFragment()
     {
         // Required empty public constructor
@@ -77,7 +80,7 @@ public class EmployeeRegisterFragment extends Fragment
                     if(validations()) //if the data provided is valid then proceed with registration of the user
                     {
                         progressBar.setVisibility(View.VISIBLE);
-                        registerUser(employeeCode, employeeFullName, employeePhoneNumber, employeeEmail, userPassword);
+                        registerUser(employeeCode, employeeFullName, employeePhoneNumber, employeeEmail, userPassword,userType);
                     }
                 }
             });
@@ -95,6 +98,9 @@ public class EmployeeRegisterFragment extends Fragment
         confirmPasswordEditText = view.findViewById(R.id.confirm_password);
         registerButton = view.findViewById(R.id.register_button);
         progressBar = view.findViewById(R.id.progress_bar);
+        admin = view.findViewById(R.id.admin);
+        other = view.findViewById(R.id.other);
+        rgUserType = view.findViewById(R.id.rgUserType);
         firebaseAuth = FirebaseAuth.getInstance();
     }
 
@@ -106,6 +112,15 @@ public class EmployeeRegisterFragment extends Fragment
         employeeEmail = employeeEmailEditText.getText().toString();
         userPassword = passwordEditText.getText().toString();
         confirmUserPassword = confirmPasswordEditText.getText().toString();
+
+        if (admin.isChecked())
+        {
+            userType = "Admin";
+        }
+        else if (other.isChecked())
+        {
+            userType = "Other";
+        }
     }
 
     /*
@@ -200,7 +215,7 @@ public class EmployeeRegisterFragment extends Fragment
         {
             if(getContext() != null)
             {
-                Toast.makeText(getContext(), "Passwords don't match!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Passwords doesn't match!", Toast.LENGTH_SHORT).show();
                 passwordEditText.requestFocus();
                 confirmPasswordEditText.requestFocus();
                 return false;
@@ -209,7 +224,7 @@ public class EmployeeRegisterFragment extends Fragment
         return true;
     }
 
-    private void registerUser(final String employeeCode, final String employeeFullName, final String employeePhoneNumber, final String employeeEmail, final String userPassword)
+    private void registerUser(final String employeeCode, final String employeeFullName, final String employeePhoneNumber, final String employeeEmail, final String userPassword, final String userType)
     {
         firebaseAuth.createUserWithEmailAndPassword(employeeEmail, userPassword).addOnCompleteListener(Objects.requireNonNull(getActivity()), new OnCompleteListener<AuthResult>()
         {
@@ -219,12 +234,13 @@ public class EmployeeRegisterFragment extends Fragment
                 {
                     if(getContext() != null)
                     {
+                        progressBar.setVisibility(View.GONE);
                         Toast.makeText(getContext(), "Registration Failed!", Toast.LENGTH_SHORT).show();
                     }
                 }
                 else
                 {
-                    EmployeeProfileDetails employeeProfileDetails = new EmployeeProfileDetails(employeeCode, employeeFullName, employeePhoneNumber, employeeEmail, userPassword);
+                    EmployeeProfileDetails employeeProfileDetails = new EmployeeProfileDetails(employeeCode, employeeFullName, employeePhoneNumber, employeeEmail, userPassword,userType);
                     userDataBase = FirebaseDatabase.getInstance().getReference(); // Add the reference
                     employeeAttendance = FirebaseDatabase.getInstance().getReference();
                     userDataBase.child("Employee Profiles").child(employeeCode).setValue(employeeProfileDetails).addOnSuccessListener(new OnSuccessListener<Void>()
@@ -234,9 +250,7 @@ public class EmployeeRegisterFragment extends Fragment
                             employeeAttendance.child("Employee Attendance").child(employeeCode).setValue(true);
                             progressBar.setVisibility(View.GONE);
                             Toast.makeText(getContext(), "Registration Successful", Toast.LENGTH_SHORT).show();
-//                            Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, HomeFragment.newInstance()) // launch the home fragment if login is successful
-//                                    .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).commit();
-                        }
+                       }
                     }).addOnFailureListener(new OnFailureListener() // If after the task fails after initiation then either connectivity issue or FireBase down or node not found
                     {
                         public void onFailure(@NonNull Exception e)
