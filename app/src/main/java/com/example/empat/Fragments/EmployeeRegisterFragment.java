@@ -1,4 +1,4 @@
-package com.example.empat;
+package com.example.empat.Fragments;
 
 
 import android.os.Bundle;
@@ -10,14 +10,16 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.example.empat.Model.EmployeeProfileDetails;
+import com.example.empat.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -32,10 +34,6 @@ import java.util.Objects;
 public class EmployeeRegisterFragment extends Fragment
 {
 
-    private static final String CURRENT_USER_TYPE = "current_user_type";
-    private static final String CURRENT_EMPLOYEE_CODE = "current_employee_code";
-
-    private int userType;
     String emailRegexValidator = "^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
     private EditText employeeCodeEditText,
             employeeNameEditText,
@@ -46,21 +44,21 @@ public class EmployeeRegisterFragment extends Fragment
     private Button registerButton;
     private ProgressBar progressBar;
     public static final String EMPTY_STRING = "";
-    private String employeeCode, employeeFullName,employeePhoneNumber, employeeEmail, userPassword, confirmUserPassword;
-    private DatabaseReference userDataBase;
+    private String employeeCode, employeeFullName, employeePhoneNumber, employeeEmail, userPassword, confirmUserPassword, userType;
+    private DatabaseReference userDataBase,employeeAttendance;
     private FirebaseAuth firebaseAuth;
-
+    private RadioButton admin, other;
+    private RadioGroup rgUserType;
     public EmployeeRegisterFragment()
     {
         // Required empty public constructor
     }
 
-    public static EmployeeRegisterFragment newInstance(int userType, String employeeCode)
+    public static EmployeeRegisterFragment newInstance()
     {
         EmployeeRegisterFragment employeeRegisterFragment = new EmployeeRegisterFragment();
         Bundle args = new Bundle();
-        args.putInt(CURRENT_USER_TYPE, userType);
-        args.putString(CURRENT_EMPLOYEE_CODE,employeeCode);
+
         employeeRegisterFragment.setArguments(args);
         return employeeRegisterFragment;
     }
@@ -82,7 +80,7 @@ public class EmployeeRegisterFragment extends Fragment
                     if(validations()) //if the data provided is valid then proceed with registration of the user
                     {
                         progressBar.setVisibility(View.VISIBLE);
-                        registerUser(employeeCode, employeeFullName, employeePhoneNumber, employeeEmail, userPassword);
+                        registerUser(employeeCode, employeeFullName, employeePhoneNumber, employeeEmail, userPassword,userType);
                     }
                 }
             });
@@ -92,10 +90,6 @@ public class EmployeeRegisterFragment extends Fragment
 
     private void init(View view)
     {
-        if(getArguments() != null)
-        {
-            userType = getArguments().getInt(CURRENT_USER_TYPE);
-        }
         employeeCodeEditText = view.findViewById(R.id.employee_code);
         employeeNameEditText = view.findViewById(R.id.full_name);
         phoneNumberEditText = view.findViewById(R.id.phone_number);
@@ -104,6 +98,9 @@ public class EmployeeRegisterFragment extends Fragment
         confirmPasswordEditText = view.findViewById(R.id.confirm_password);
         registerButton = view.findViewById(R.id.register_button);
         progressBar = view.findViewById(R.id.progress_bar);
+        admin = view.findViewById(R.id.admin);
+        other = view.findViewById(R.id.other);
+        rgUserType = view.findViewById(R.id.rgUserType);
         firebaseAuth = FirebaseAuth.getInstance();
     }
 
@@ -115,6 +112,15 @@ public class EmployeeRegisterFragment extends Fragment
         employeeEmail = employeeEmailEditText.getText().toString();
         userPassword = passwordEditText.getText().toString();
         confirmUserPassword = confirmPasswordEditText.getText().toString();
+
+        if (admin.isChecked())
+        {
+            userType = "Admin";
+        }
+        else if (other.isChecked())
+        {
+            userType = "Other";
+        }
     }
 
     /*
@@ -209,7 +215,7 @@ public class EmployeeRegisterFragment extends Fragment
         {
             if(getContext() != null)
             {
-                Toast.makeText(getContext(), "Passwords don't match!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Passwords doesn't match!", Toast.LENGTH_SHORT).show();
                 passwordEditText.requestFocus();
                 confirmPasswordEditText.requestFocus();
                 return false;
@@ -218,7 +224,7 @@ public class EmployeeRegisterFragment extends Fragment
         return true;
     }
 
-    private void registerUser(final String employeeCode, final String employeeFullName, final String employeePhoneNumber, final String employeeEmail, final String userPassword)
+    private void registerUser(final String employeeCode, final String employeeFullName, final String employeePhoneNumber, final String employeeEmail, final String userPassword, final String userType)
     {
         firebaseAuth.createUserWithEmailAndPassword(employeeEmail, userPassword).addOnCompleteListener(Objects.requireNonNull(getActivity()), new OnCompleteListener<AuthResult>()
         {
@@ -228,23 +234,23 @@ public class EmployeeRegisterFragment extends Fragment
                 {
                     if(getContext() != null)
                     {
+                        progressBar.setVisibility(View.GONE);
                         Toast.makeText(getContext(), "Registration Failed!", Toast.LENGTH_SHORT).show();
                     }
                 }
                 else
                 {
-                    String user_id = Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid();
-                    EmployeeProfileDetails employeeProfileDetails = new EmployeeProfileDetails(employeeCode, employeeFullName, employeePhoneNumber, employeeEmail, userPassword);
+                    EmployeeProfileDetails employeeProfileDetails = new EmployeeProfileDetails(employeeCode, employeeFullName, employeePhoneNumber, employeeEmail, userPassword,userType);
                     userDataBase = FirebaseDatabase.getInstance().getReference(); // Add the reference
+                    employeeAttendance = FirebaseDatabase.getInstance().getReference();
                     userDataBase.child("Employee Profiles").child(employeeCode).setValue(employeeProfileDetails).addOnSuccessListener(new OnSuccessListener<Void>()
                     {
                         public void onSuccess(Void aVoid) // If the task is successful i. e registration successful
                         {
+                            employeeAttendance.child("Employee Attendance").child(employeeCode).setValue(true);
                             progressBar.setVisibility(View.GONE);
                             Toast.makeText(getContext(), "Registration Successful", Toast.LENGTH_SHORT).show();
-//                            Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, HomeFragment.newInstance()) // launch the home fragment if login is successful
-//                                    .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).commit();
-                        }
+                       }
                     }).addOnFailureListener(new OnFailureListener() // If after the task fails after initiation then either connectivity issue or FireBase down or node not found
                     {
                         public void onFailure(@NonNull Exception e)
@@ -256,5 +262,4 @@ public class EmployeeRegisterFragment extends Fragment
             }
         });
     }
-
 }
