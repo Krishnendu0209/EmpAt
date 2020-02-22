@@ -1,4 +1,4 @@
-package com.example.empat;
+package com.example.empat.Fragments;
 
 
 import android.os.Bundle;
@@ -13,11 +13,11 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.empat.Model.EmployeeProfileDetails;
+import com.example.empat.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -32,10 +32,6 @@ import java.util.Objects;
 public class EmployeeRegisterFragment extends Fragment
 {
 
-    private static final String CURRENT_USER_TYPE = "current_user_type";
-    private static final String CURRENT_EMPLOYEE_CODE = "current_employee_code";
-
-    private int userType;
     String emailRegexValidator = "^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
     private EditText employeeCodeEditText,
             employeeNameEditText,
@@ -55,12 +51,11 @@ public class EmployeeRegisterFragment extends Fragment
         // Required empty public constructor
     }
 
-    public static EmployeeRegisterFragment newInstance(int userType, String employeeCode)
+    public static EmployeeRegisterFragment newInstance()
     {
         EmployeeRegisterFragment employeeRegisterFragment = new EmployeeRegisterFragment();
         Bundle args = new Bundle();
-        args.putInt(CURRENT_USER_TYPE, userType);
-        args.putString(CURRENT_EMPLOYEE_CODE,employeeCode);
+
         employeeRegisterFragment.setArguments(args);
         return employeeRegisterFragment;
     }
@@ -92,10 +87,6 @@ public class EmployeeRegisterFragment extends Fragment
 
     private void init(View view)
     {
-        if(getArguments() != null)
-        {
-            userType = getArguments().getInt(CURRENT_USER_TYPE);
-        }
         employeeCodeEditText = view.findViewById(R.id.employee_code);
         employeeNameEditText = view.findViewById(R.id.full_name);
         phoneNumberEditText = view.findViewById(R.id.phone_number);
