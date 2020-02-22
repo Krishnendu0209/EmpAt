@@ -142,7 +142,7 @@ public class EmployeeRegisterFragment extends Fragment
             }
         }
 
-        if(employeePhoneNumber.equals(""))//If password field is empty then don't proceed
+        if(employeePhoneNumber.equals(""))//If phone number field is empty then don't proceed
         {
             if(getContext() != null)
             {
@@ -151,7 +151,7 @@ public class EmployeeRegisterFragment extends Fragment
                 return false;
             }
         }
-        else if(employeePhoneNumber.length() < 10) //else proceed and check if password field is not empty then check for number of characters as FireBase supports min 6 characters password
+        else if(employeePhoneNumber.length() < 10) //else proceed and check if phone number field is not empty then check for number of characters as FireBase supports min 6 characters password
         {
             if(getContext() != null)
             {
