@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -24,7 +25,7 @@ public class MainActivity extends AppCompatActivity
     private Button loginButton;
     private EditText employeeCodeEditText, passwordEditText;
     private ProgressBar progressBar;
-    public static final String EMPTY_STRING = "";
+    private ImageView homeImage;
     private String employeeCode, userPassword;
     private FrameLayout fragment_placeholder;
     private DatabaseReference userDataBase;
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        homeImage= findViewById(R.id.homeImage);
         loginButton = findViewById(R.id.login_button);
         employeeCodeEditText = findViewById(R.id.employeeCode);
         passwordEditText = findViewById(R.id.employeePassword);
@@ -53,7 +55,7 @@ public class MainActivity extends AppCompatActivity
                 {
                     if(employeeCode.equals("2526") && userPassword.equals("2526")) // if code is 2526 then user is of admin category hence can register other users
                     {
-                        updateUI();
+                        updateUI(1);
                         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, FeatureDisplayFragment.newInstance(1, "2526"))
                                 .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
                                 .addToBackStack("Admin Features").commit();
@@ -61,6 +63,9 @@ public class MainActivity extends AppCompatActivity
                     else
                     {
                         progressBar.setVisibility(View.VISIBLE);
+                        employeeCodeEditText.setEnabled(false);
+                        passwordEditText.setEnabled(false);
+                        loginButton.setVisibility(View.INVISIBLE);
                         validateUser(employeeCode, userPassword);
                     }
                 }
@@ -91,13 +96,31 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void updateUI()
+    private void updateUI(int choice)
     {
-        fragment_placeholder.setVisibility(View.VISIBLE);
-        loginButton.setVisibility(View.GONE);
-        employeeCodeEditText.setVisibility(View.GONE);
-        passwordEditText.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
+        if(choice == 1)
+        {
+            homeImage.setVisibility(View.GONE);
+            fragment_placeholder.setVisibility(View.VISIBLE);
+            loginButton.setVisibility(View.GONE);
+            employeeCodeEditText.setVisibility(View.GONE);
+            passwordEditText.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
+        }
+        else //When is pressed and user lands on first screen
+        {
+            loginButton.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.GONE);
+            homeImage.setVisibility(View.VISIBLE);
+            fragment_placeholder.setVisibility(View.GONE);
+            loginButton.setVisibility(View.VISIBLE);
+            employeeCodeEditText.setVisibility(View.VISIBLE);
+            employeeCodeEditText.getText().clear();
+            employeeCodeEditText.setEnabled(true);
+            passwordEditText.setVisibility(View.VISIBLE);
+            passwordEditText.getText().clear();
+            passwordEditText.setEnabled(true);
+        }
     }
 
 
@@ -123,7 +146,7 @@ public class MainActivity extends AppCompatActivity
                         }
                         if(employeeProfileDetails != null && employeeProfileDetails.userPassword.equals(userPassword))//Valid User
                         {
-                            updateUI();
+                            updateUI(1);
                             if(employeeProfileDetails.userType.equals("Admin"))
                             {
                                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, FeatureDisplayFragment.newInstance(1, employeeCode))
@@ -140,6 +163,7 @@ public class MainActivity extends AppCompatActivity
                         else
                         {
                             progressBar.setVisibility(View.GONE);
+                            updateUI(2);
                             Toast.makeText(MainActivity.this, "Invalid Credentials!", Toast.LENGTH_LONG).show();
                         }
                     } catch(Exception e)
@@ -160,5 +184,14 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
+    }
+    @Override
+    public void onBackPressed()
+    {
+        super.onBackPressed();
+        if (getSupportFragmentManager().getBackStackEntryCount() == 0)//That means we are in Main screen
+        {
+            updateUI(2);
+        }
     }
 }
