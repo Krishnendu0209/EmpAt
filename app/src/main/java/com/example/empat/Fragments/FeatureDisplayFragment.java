@@ -24,7 +24,7 @@ public class FeatureDisplayFragment extends Fragment
     private static final String CURRENT_USER_TYPE = "current_user_type";
     private static final String CURRENT_EMPLOYEE_CODE = "current_employee_code";
     private int userType;
-    private String employeeCode, employeeCodeText, transactionDateText ;
+    private String employeeCode, employeeCodeText;
     private Button registerEmployee, submitAttendance, modify_employee_record, modify_employee_transactions, getAttendanceReport;
 
     public FeatureDisplayFragment()
@@ -61,7 +61,7 @@ public class FeatureDisplayFragment extends Fragment
                     {
                         if(getFragmentManager() != null)
                         {
-                            getFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, EmployeeRegisterModificationDeletionFragment.newInstance(1,""))
+                            getFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, EmployeeRegisterModificationDeletionFragment.newInstance(1, ""))
                                     .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
                                     .addToBackStack("User Register").commit();
                         }
@@ -90,7 +90,7 @@ public class FeatureDisplayFragment extends Fragment
                 public void onClick(View v)
                 {
                     //Employee Details can be modified only by the Admin user
-                    setupAlertDialog(1);
+                    setupAlertDialog();
                 }
             });
             modify_employee_transactions.setOnClickListener(new View.OnClickListener()
@@ -99,7 +99,8 @@ public class FeatureDisplayFragment extends Fragment
                 public void onClick(View v)
                 {
                     //Employee attendance transactions can be modified by the Admin
-                    setupAlertDialog(2);
+                    Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, AttendanceModificationFragment.newInstance(employeeCodeText)) // launch the home fragment if login is successful
+                            .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).addToBackStack("Employee Attendance Modifications").commit();
                 }
             });
             getAttendanceReport.setOnClickListener(new View.OnClickListener()
@@ -114,7 +115,7 @@ public class FeatureDisplayFragment extends Fragment
         return view;
     }
 
-    private void setupAlertDialog(final int viewOptions)
+    private void setupAlertDialog()
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Record Modifications");
@@ -122,56 +123,32 @@ public class FeatureDisplayFragment extends Fragment
         final View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.employee_details_dialog, (ViewGroup) getView(), false);
         // Set up the employeeCode
         final EditText employeeCode = (EditText) viewInflated.findViewById(R.id.employeeCode);
-        final EditText transactionDate  = (EditText) viewInflated.findViewById(R.id.transactionDate);
-        if(viewOptions == 1)
-        {
-            transactionDate.setVisibility(View.GONE); // No need of transaction date field
-        }
-        else
-        {
-            transactionDate.setVisibility(View.VISIBLE); //Transaction date need for modification of attendance transactions
-        }
         builder.setView(viewInflated);
         // Set up the buttons
-        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener()
+        {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onClick(DialogInterface dialog, int which)
+            {
                 dialog.dismiss();
                 employeeCodeText = employeeCode.getText().toString();
-                if(viewOptions == 1) //For employee record modifications
+
+                if(employeeCodeText.equals(""))
                 {
-                    if(employeeCodeText.equals(""))
-                    {
-                        Toast.makeText(getContext(),"Enter Employee Code",Toast.LENGTH_LONG).show();
-                    }
-                    else
-                    {
-                        Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, EmployeeRegisterModificationDeletionFragment.newInstance(2,employeeCodeText)) // launch the home fragment if login is successful
-                                .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).addToBackStack("Employee Details Modifications").commit();
-                    }
+                    Toast.makeText(getContext(), "Enter Employee Code", Toast.LENGTH_LONG).show();
                 }
-                else if(viewOptions == 2) //for attendance modification
+                else
                 {
-                    transactionDateText = transactionDate.getText().toString();
-                    if(employeeCodeText.equals(""))
-                    {
-                        Toast.makeText(getContext(),"Enter Employee Code",Toast.LENGTH_LONG).show();
-                    }
-                    if(transactionDateText.equals(""))
-                    {
-                        Toast.makeText(getContext(),"Enter Transaction Date",Toast.LENGTH_LONG).show();
-                    }
-                    else
-                    {
-                        Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, AttendanceModificationFragment.newInstance(transactionDateText,employeeCodeText)) // launch the home fragment if login is successful
-                                .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).addToBackStack("Employee Details Modifications").commit();
-                    }
+                    Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, EmployeeRegisterModificationDeletionFragment.newInstance(2, employeeCodeText)) // launch the home fragment if login is successful
+                            .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).addToBackStack("Employee Details Modifications").commit();
                 }
             }
         });
-        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener()
+        {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onClick(DialogInterface dialog, int which)
+            {
                 dialog.cancel();
             }
         });

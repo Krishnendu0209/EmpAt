@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity
             passwordEditText.setVisibility(View.GONE);
             progressBar.setVisibility(View.GONE);
         }
-        else //When is pressed and user lands on first screen
+        else //When user lands on first screen
         {
             loginButton.setVisibility(View.VISIBLE);
             progressBar.setVisibility(View.GONE);
@@ -174,6 +174,7 @@ public class MainActivity extends AppCompatActivity
                 else if (employeeProfileDetails == null)
                 {
                     progressBar.setVisibility(View.GONE);
+                    updateUI(2);
                     Toast.makeText(MainActivity.this, "Invalid Credentials!", Toast.LENGTH_LONG).show();
                 }
             }
