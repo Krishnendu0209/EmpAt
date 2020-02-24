@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
+    android:windowSoftInputMode="adjustResize"
     tools:context=".Fragments.EmployeeRegisterModificationDeletionFragment">
     <ProgressBar
         android:id="@+id/progress_bar"
