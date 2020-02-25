@@ -27,6 +27,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'com.firebaseui:firebase-ui-auth:4.3.1'
 
-    implementation 'com.google.firebase:firebase-database:16.0.5'// Added for integrating the FireBase Realtime Database
+    implementation 'com.google.firebase:firebase-database:16.0.5'
+    implementation files('libs\\poi-3.7.jar')// Added for integrating the FireBase Realtime Database
 }
 apply plugin: 'com.google.gms.google-services'

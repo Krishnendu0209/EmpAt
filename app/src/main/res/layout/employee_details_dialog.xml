@@ -12,5 +12,25 @@
         android:hint="Employee Code"
         android:textColor="#000000"
         android:textSize="16dp" />
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/fileType"
+        android:checkedButton="@id/excelFile">
 
+        <RadioButton
+            android:id="@+id/excelFile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight=".5"
+            android:text="Excel File" />
+
+        <RadioButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight=".5"
+            android:text="Text File"
+            android:id="@+id/txtFile"/>
+    </RadioGroup>
 </LinearLayout>
