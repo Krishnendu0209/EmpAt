@@ -3,154 +3,170 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:gravity="center"
+    android:orientation="vertical"
     android:windowSoftInputMode="adjustResize"
     tools:context=".Fragments.EmployeeRegisterModificationDeletionFragment">
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="invisible"
-        android:layout_gravity="center"
-        android:indeterminateTint="@color/colorPrimary" />
 
-    <EditText
-        android:id="@+id/employee_code"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:gravity="center"
-        android:hint="Employee Code"
-        android:inputType="number" />
-
-
-    <EditText
-        android:id="@+id/full_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:gravity="center"
-        android:hint="Employee Full Name"
-        android:inputType="textPersonName" />
-    <EditText
-        android:id="@+id/phone_number"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:gravity="center"
-        android:hint="Phone Number"
-        android:inputType="number" />
-
-    <EditText
-        android:id="@+id/email"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:gravity="center"
-        android:hint="Employee Email"
-        android:inputType="textEmailAddress" />
-
-    <EditText
-        android:id="@+id/password"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:gravity="center"
-        android:hint="Password"
-        android:inputType="textPassword" />
-
-    <EditText
-        android:id="@+id/confirm_password"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:gravity="center"
-        android:hint="Confirm Password"
-        android:inputType="textPassword" />
-    <RadioGroup
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:id="@+id/rgUserType"
-        android:checkedButton="@id/other">
-
-        <RadioButton
-            android:id="@+id/admin"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight=".5"
-            android:text="Admin" />
-
-        <RadioButton
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight=".5"
-            android:text="Other"
-            android:id="@+id/other"/>
-    </RadioGroup>
-
-    <Button
-        android:id="@+id/register_button"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="30dp"
-        android:background="@drawable/rounded_button_login_register"
-        android:text="Register"
-        android:textColor="#ffffff"
-        android:textStyle="bold" />
-
-    <Button
-        android:id="@+id/unlock_record"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="30dp"
-        android:background="@drawable/rounded_button_login_register"
-        android:text="Unlock Record"
-        android:textColor="#ffffff"
-        android:textStyle="bold" />
-    <Button
-        android:id="@+id/confirm_modification"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="30dp"
-        android:background="@drawable/rounded_button_login_register"
-        android:text="Confirm Modifications"
-        android:textColor="#ffffff"
-        android:textStyle="bold" />
-    <Button
-        android:id="@+id/delete_record"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="30dp"
-        android:background="@drawable/rounded_button_login_register"
-        android:text="Delete Record"
-        android:textColor="#ffffff"
-        android:textStyle="bold" />
-
-
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:gravity="center"
+        android:id="@+id/registrationLayout"
+        android:orientation="vertical">
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminateTint="@color/colorPrimary"
+            android:visibility="invisible" />
+
+        <EditText
+            android:id="@+id/employee_code"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:gravity="center"
+            android:hint="Employee Code"
+            android:inputType="number" />
+
+
+        <EditText
+            android:id="@+id/full_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:gravity="center"
+            android:hint="Employee Full Name"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/phone_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:gravity="center"
+            android:hint="Phone Number"
+            android:inputType="number" />
+
+        <EditText
+            android:id="@+id/email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:gravity="center"
+            android:hint="Employee Email"
+            android:inputType="textEmailAddress" />
+
+        <EditText
+            android:id="@+id/password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:gravity="center"
+            android:hint="Password"
+            android:inputType="textPassword" />
+
+        <EditText
+            android:id="@+id/confirm_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:gravity="center"
+            android:hint="Confirm Password"
+            android:inputType="textPassword" />
+
+        <RadioGroup
+            android:id="@+id/rgUserType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checkedButton="@id/other"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/admin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight=".5"
+                android:text="Admin" />
+
+            <RadioButton
+                android:id="@+id/other"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight=".5"
+                android:text="Other" />
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/register_button"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/rounded_button_login_register"
+            android:text="Register"
+            android:textColor="#ffffff"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/unlock_record"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/rounded_button_login_register"
+            android:text="Unlock Record"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/confirm_modification"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/rounded_button_login_register"
+            android:text="Confirm Modifications"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/delete_record"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/rounded_button_login_register"
+            android:text="Delete Record"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <FrameLayout
         android:id="@+id/operation_completion_frame"
-        android:visibility="gone">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:visibility="visible">
+
         <TextView
             android:id="@+id/successfulMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="30dp"/>
+            android:layout_gravity="center"
+            android:textSize="30dp" />
     </FrameLayout>
 </LinearLayout>

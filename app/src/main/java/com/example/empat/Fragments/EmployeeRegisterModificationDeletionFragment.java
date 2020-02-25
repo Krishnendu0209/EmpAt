@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -40,6 +41,7 @@ import java.util.Objects;
 public class EmployeeRegisterModificationDeletionFragment extends Fragment
 {
     private FrameLayout operationCompletionFrame;
+    private LinearLayout registrationLayout;
     private TextView successfulMessage;
     String emailRegexValidator = "^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
     private EditText employeeCodeEditText,
@@ -95,7 +97,6 @@ public class EmployeeRegisterModificationDeletionFragment extends Fragment
                         {
                             progressBar.setVisibility(View.VISIBLE);
                             registerUser(employeeCode, employeeFullName, employeePhoneNumber, employeeEmail, userPassword, userType);
-                            operationCompletion(1);
                         }
                     }
                 });
@@ -122,7 +123,6 @@ public class EmployeeRegisterModificationDeletionFragment extends Fragment
                         {
                             progressBar.setVisibility(View.VISIBLE);
                             modifyEmployeeRecord(employeeCode, employeeFullName, employeePhoneNumber, employeeEmail, userPassword, userType);
-                            operationCompletion(2);
                         }
                     }
                 });
@@ -135,7 +135,6 @@ public class EmployeeRegisterModificationDeletionFragment extends Fragment
                         deleteEmployeeDetailsAndAttendanceRecord(employeeCode);
                         Toast.makeText(getContext(), "Deletion Successful", Toast.LENGTH_SHORT).show();
                         progressBar.setVisibility(View.GONE);
-                        operationCompletion(3);
                     }
                 });
             }
@@ -160,7 +159,7 @@ public class EmployeeRegisterModificationDeletionFragment extends Fragment
         admin = view.findViewById(R.id.admin);
         other = view.findViewById(R.id.other);
         rgUserType = view.findViewById(R.id.rgUserType);
-
+        registrationLayout = view.findViewById(R.id.registrationLayout);
         operationCompletionFrame = view.findViewById(R.id.operation_completion_frame);
         successfulMessage = view.findViewById(R.id.successfulMessage);
         firebaseAuth = FirebaseAuth.getInstance();
@@ -322,6 +321,7 @@ public class EmployeeRegisterModificationDeletionFragment extends Fragment
                             employeeAttendance.child("Employee Attendance").child(employeeCode).setValue(true);
                             progressBar.setVisibility(View.GONE);
                             Toast.makeText(getContext(), "Registration Successful", Toast.LENGTH_SHORT).show();
+                            operationCompletion(1);
                         }
                     }).addOnFailureListener(new OnFailureListener() // If after the task fails after initiation then either connectivity issue or FireBase down or node not found
                     {
@@ -388,6 +388,7 @@ public class EmployeeRegisterModificationDeletionFragment extends Fragment
             {
                 progressBar.setVisibility(View.GONE);
                 Toast.makeText(getContext(), "Modification Successful", Toast.LENGTH_SHORT).show();
+                operationCompletion(2);
             }
         }).addOnFailureListener(new OnFailureListener() // If after the task fails after initiation then either connectivity issue or FireBase down or node not found
         {
@@ -403,6 +404,7 @@ public class EmployeeRegisterModificationDeletionFragment extends Fragment
         userDataBase = FirebaseDatabase.getInstance().getReference(); // Add the reference
         userDataBase.child("Employee Profiles").child(employeeCode).removeValue(); //Record deleted from the employee record node
         userDataBase.child("Employee Attendance").child(employeeCode).removeValue();// Complete attendance record of employee deleted
+        operationCompletion(3);
     }
 
     private void setUpUIOnDetailsFetched(EmployeeProfileDetails employeeProfileDetails)
@@ -455,17 +457,7 @@ public class EmployeeRegisterModificationDeletionFragment extends Fragment
     }
     private void operationCompletion(int opCode) //Only frame layout to be visible
     {
-        deleteRecord.setVisibility(View.GONE);
-        employeeCodeEditText.setVisibility(View.GONE);
-        employeeNameEditText.setVisibility(View.GONE);
-        phoneNumberEditText.setVisibility(View.GONE);
-        employeeEmailEditText.setVisibility(View.GONE);
-        passwordEditText.setVisibility(View.GONE);
-        rgUserType.setVisibility(View.GONE);
-        registerButton.setVisibility(View.GONE);
-        confirmModifications.setVisibility(View.GONE);
-        unlockRecord.setVisibility(View.GONE);
-        deleteRecord.setVisibility(View.GONE);
+        registrationLayout.setVisibility(View.GONE);
         operationCompletionFrame.setVisibility(View.VISIBLE);
         if(opCode == 1)
         {

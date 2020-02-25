@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -45,6 +46,8 @@ public class AttendanceModificationFragment extends Fragment
     private DatabaseReference employeeAttendance;
     private int mYear, mMonth, mDay, mHour, mMinute;
     private String currentDate, currentTime, tempEmployeeCode, checkInDateText, checkInTimeText, checkOutDateText, checkOutTimeText;
+    private FrameLayout operationCompletionFrame;
+    private TextView successfulMessage;
 
     public AttendanceModificationFragment()
     {
@@ -167,6 +170,7 @@ public class AttendanceModificationFragment extends Fragment
         checkOutDate = view.findViewById(R.id.checkOutDate);
         checkOutTime = view.findViewById(R.id.checkoutTime);
         attendanceDate = view.findViewById(R.id.attendanceDate);
+        successfulMessage = view.findViewById(R.id.successfulMessage);
         employeeCode = view.findViewById(R.id.employeeCode);
         progressBar = view.findViewById(R.id.progress_bar);
         attendanceDetailsView = view.findViewById(R.id.attendanceDetailsView);
@@ -175,6 +179,7 @@ public class AttendanceModificationFragment extends Fragment
         confirmModification = view.findViewById(R.id.confirm_modification);
         deleteRecord = view.findViewById(R.id.delete_record);
         unlockRecord = view.findViewById(R.id.unlock_record);
+        operationCompletionFrame = view.findViewById(R.id.operation_completion_frame);
     }
 
     private void fetchAndDisplayEmployeeDetails(final String employeeCode, final String currentDate) // Function is responsible for fetching details corresponding to employee code form FireBase
@@ -343,6 +348,7 @@ public class AttendanceModificationFragment extends Fragment
         progressBar.setVisibility(View.VISIBLE);
         employeeAttendance = FirebaseDatabase.getInstance().getReference(); // Add the reference
         employeeAttendance.child("Employee Attendance").child(employeeCode).child(currentDate).removeValue();// Complete attendance record of employee deleted
+        operationCompletion(2);
     }
 
     private void modifyEmployeeAttendance(final String employeeCode, String checkInDate, String checkOutDate, String checkInTime, String checkOutTime)
@@ -355,6 +361,7 @@ public class AttendanceModificationFragment extends Fragment
             {
                 progressBar.setVisibility(View.GONE);
                 Toast.makeText(getContext(), "Modification Successful", Toast.LENGTH_SHORT).show();
+                operationCompletion(1);
             }
         }).addOnFailureListener(new OnFailureListener() // If after the task fails after initiation then either connectivity issue or FireBase down or node not found
         {
@@ -415,5 +422,19 @@ public class AttendanceModificationFragment extends Fragment
         checkInTimeText = checkInTime.getText().toString();
         checkOutDateText = checkOutDate.getText().toString();
         checkOutTimeText = checkOutTime.getText().toString();
+    }
+    private void operationCompletion(int opCode) //Only frame layout to be visible
+    {
+        attendanceRequiredDetails.setVisibility(View.GONE);
+        attendanceDetailsView.setVisibility(View.GONE);
+        operationCompletionFrame.setVisibility(View.VISIBLE);
+        if(opCode == 1)
+        {
+            successfulMessage.setText("Modification Successful!");
+        }
+        else if(opCode == 2)
+        {
+            successfulMessage.setText("Deletion Successful!");
+        }
     }
 }

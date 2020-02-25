@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,11 +31,21 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.Objects;
 
 /**
@@ -46,13 +57,16 @@ public class FeatureDisplayFragment extends Fragment
     private static final String CURRENT_EMPLOYEE_CODE = "current_employee_code";
     private int userType;
     private TextView test;
+    private ArrayList<CheckInCheckOutTime> checkInCheckOutTimeList = new ArrayList<>();
+    private ArrayList<String> attendanceDatesList = new ArrayList<>();
     private DatabaseReference userDataBase, employeeAttendance;
     private String employeeCode, employeeCodeText;
-    private Button registerEmployee, submitAttendance, modify_employee_record, modify_employee_transactions, getAttendanceReport;
+    private Button registerEmployee, submitAttendance, modifyEmployeeRecord, modifyEmployeeTransactions, getAttendanceReport;
     private ProgressBar progressBar;
     CheckInCheckOutTime checkInCheckOutTime = null;
     EmployeeProfileDetails employeeProfileDetails = null;
-    Boolean transactionAttendance;
+    Boolean attendanceReport; // To understand dialog is for attendance report fetch or modifying employee record
+    private RadioButton txtFile, excelFile;
     public FeatureDisplayFragment()
     {
         // Required empty public constructor
@@ -97,8 +111,8 @@ public class FeatureDisplayFragment extends Fragment
             else if(userType == 2) //Other type user
             {
                 registerEmployee.setVisibility(View.GONE);
-                modify_employee_record.setVisibility(View.GONE);
-                modify_employee_transactions.setVisibility(View.GONE);
+                modifyEmployeeRecord.setVisibility(View.GONE);
+                modifyEmployeeTransactions.setVisibility(View.GONE);
             }
             submitAttendance.setOnClickListener(new View.OnClickListener()
             {
@@ -110,7 +124,7 @@ public class FeatureDisplayFragment extends Fragment
 
                 }
             });
-            modify_employee_record.setOnClickListener(new View.OnClickListener()
+            modifyEmployeeRecord.setOnClickListener(new View.OnClickListener()
             {
                 @Override
                 public void onClick(View v)
@@ -119,7 +133,7 @@ public class FeatureDisplayFragment extends Fragment
                     setupAlertDialog();
                 }
             });
-            modify_employee_transactions.setOnClickListener(new View.OnClickListener()
+            modifyEmployeeTransactions.setOnClickListener(new View.OnClickListener()
             {
                 @Override
                 public void onClick(View v)
@@ -139,12 +153,12 @@ public class FeatureDisplayFragment extends Fragment
                     {
                         if(userType == 2)//Employee of type : other can get only their respective details of attendance
                         {
-                            fetchAndDisplayEmployeeDetails(employeeCode);
-                            fetchAttendanceReport(employeeCode);
+                            attendanceReport = true;
+                            setupAlertDialog();
                         }
                         else //Admin type employee can see others' details
                         {
-                            transactionAttendance = true;
+                            attendanceReport = true;
                             setupAlertDialog();
                         }
 
@@ -168,8 +182,8 @@ public class FeatureDisplayFragment extends Fragment
                 {
                     try
                     {
+                        fetchingDataUISet();
                         progressBar.setVisibility(View.VISIBLE);
-                        String finalData = "";
                         for(DataSnapshot employeeDateSnapshot : dataSnapshot.getChildren())
                         {
                             if(employeeDateSnapshot.getKey().equals(employeeCode)) //Pointer now at employee code
@@ -178,21 +192,27 @@ public class FeatureDisplayFragment extends Fragment
                                 {
                                     String tempData = userSnapshot.getKey().toString() + " ";
                                     checkInCheckOutTime = userSnapshot.getValue(CheckInCheckOutTime.class);// Assigning the database data to the model object
-                                    tempData = formatAttendanceReport(checkInCheckOutTime, tempData);
-                                    finalData = finalData + tempData + "\n\n";
+                                    attendanceDatesList.add(tempData);//Will contain the parent date nodes
+                                    checkInCheckOutTimeList.add(checkInCheckOutTime); //Will contain the check in check out data nodes
                                 }
                             }
                         }
-                        finalData = formatEmployeeDetails(employeeProfileDetails) + finalData;
-                        test.setText(finalData);
-                        writeToFile(finalData, employeeCode);
-                        progressBar.setVisibility(View.GONE);
-                        if(checkInCheckOutTime != null)
+                        if(checkInCheckOutTimeList != null)
                         {
+                            if(excelFile.isChecked())
+                            {
+                                writeToFile(2);
+                            }
+                            else if(txtFile.isChecked())
+                            {
+                                writeToFile(1);
+                            }
                         }
                         else
                         {
+                            fetchingDataUIReset();
                             progressBar.setVisibility(View.GONE);
+                            Toast.makeText(getContext(), "No record found", Toast.LENGTH_LONG).show();
                         }
                     } catch(Exception e)
                     {
@@ -202,9 +222,9 @@ public class FeatureDisplayFragment extends Fragment
                 else
                 {
                     //Employee Code not found
-                    progressBar.setVisibility(View.GONE);
                     Toast.makeText(getContext(), "Employee Code Not Found", Toast.LENGTH_LONG).show();
                 }
+                fetchingDataUIReset();
             }
 
             @Override
@@ -226,6 +246,7 @@ public class FeatureDisplayFragment extends Fragment
             {
                 if(dataSnapshot.hasChild(employeeCode))
                 {
+                    fetchingDataUISet();
                     try
                     {
                         for(DataSnapshot userSnapshot : dataSnapshot.getChildren())
@@ -242,6 +263,7 @@ public class FeatureDisplayFragment extends Fragment
                 }
                 else
                 {
+                    fetchingDataUISet();
                     //Employee Code not found
                     Toast.makeText(getContext(), "Employee Not Found!", Toast.LENGTH_LONG).show();
                 }
@@ -277,10 +299,11 @@ public class FeatureDisplayFragment extends Fragment
         return employeeDetails;
     }
 
-    public void writeToFile(String data, String empCode)
+    public void writeToFile(int choice)
     {
         //Downloading to file
-        Toast.makeText(getContext(), "Downloading Attendance Report", Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), "Downloading Attendance Report", Toast.LENGTH_SHORT).show();
+        String tempEmployeeDetails = formatEmployeeDetails(employeeProfileDetails);
         // Get the directory for the user's public pictures directory.
         final File path =
                 Environment.getExternalStoragePublicDirectory
@@ -295,27 +318,138 @@ public class FeatureDisplayFragment extends Fragment
             // Make it, if it doesn't exit
             path.mkdirs();
         }
-        String fileName = empCode + "_attendance.txt";
-        final File file = new File(path, fileName);
 
-        // Save your stream, don't forget to flush() it before closing it.
+        if(choice == 1)
+        {
+            String fileName = employeeProfileDetails.employeeCode + employeeProfileDetails.employeeName + "_attendance.txt";
+            final File file = new File(path, fileName);
 
-        try
-        {
-            file.createNewFile();
-            FileOutputStream fOut = new FileOutputStream(file);
-            OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
-            myOutWriter.append(data);
+            // Save your stream, don't forget to flush() it before closing it.
 
-            myOutWriter.close();
-            fOut.flush();
-            fOut.close();
-        } catch(FileNotFoundException e)
+            try
+            {
+                file.createNewFile();
+                FileOutputStream fOut = new FileOutputStream(file);
+                OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
+                myOutWriter.append(tempEmployeeDetails);
+                for(int i = 0; i < checkInCheckOutTimeList.size(); i++)
+                {
+                    String tempCheckInCheckOutData = formatAttendanceReport(checkInCheckOutTimeList.get(i), attendanceDatesList.get(i));
+                    myOutWriter.append(tempCheckInCheckOutData);
+                }
+
+                myOutWriter.close();
+                fOut.flush();
+                fOut.close();
+                Toast.makeText(getContext(), "Download Completed", Toast.LENGTH_SHORT).show();
+                progressBar.setVisibility(View.GONE);
+            } catch(FileNotFoundException e)
+            {
+                e.printStackTrace();
+            } catch(IOException e)
+            {
+                Log.e("Exception", "File write failed: " + e.toString());
+            }
+        }
+        else //If choice is excel format
         {
-            e.printStackTrace();
-        } catch(IOException e)
-        {
-            Log.e("Exception", "File write failed: " + e.toString());
+            //New Workbook
+            Workbook wb = new HSSFWorkbook();
+            Cell cell = null;
+
+            //Cell style for header row
+            CellStyle headingCellStyle = wb.createCellStyle();
+            headingCellStyle.setFillForegroundColor(HSSFColor.LIME.index);
+            headingCellStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+
+            //New Sheet
+            Sheet sheet1 = null;
+            sheet1 = wb.createSheet("Attendance Report");
+
+            // Generate column headings
+            Row row = sheet1.createRow(0);
+
+            String employeeDetails = "Employee Details : " +
+                    "\nEmployee Code : " + employeeProfileDetails.employeeCode +
+                    "\nEmployee Name : " + employeeProfileDetails.employeeName +
+                    "\nEmployee Phone : " + employeeProfileDetails.employeePhoneNumber +
+                    "\nEmployee Email : " + employeeProfileDetails.userEmail;
+
+            cell = row.createCell(0);
+            cell.setCellValue(employeeDetails);
+            cell.setCellStyle(headingCellStyle);
+
+            cell = row.createCell(1);
+            cell.setCellValue("Attendance Transaction Date");
+            cell.setCellStyle(headingCellStyle);
+
+            cell = row.createCell(2);
+            cell.setCellValue("Check In Date");
+            cell.setCellStyle(headingCellStyle);
+
+            cell = row.createCell(3);
+            cell.setCellValue("Check In Time");
+            cell.setCellStyle(headingCellStyle);
+
+            cell = row.createCell(4);
+            cell.setCellValue("Check Out Date");
+            cell.setCellStyle(headingCellStyle);
+
+            cell = row.createCell(5);
+            cell.setCellValue("Check Out Time");
+            cell.setCellStyle(headingCellStyle);
+
+            sheet1.setColumnWidth(0, (15 * 500));
+            sheet1.setColumnWidth(1, (15 * 500));
+            sheet1.setColumnWidth(2, (15 * 500));
+            for(int counter = 0; counter < checkInCheckOutTimeList.size();counter++)
+            {
+                Row dataRows = sheet1.createRow(counter + 1);//One new row created
+
+                cell = dataRows.createCell(1);
+                cell.setCellValue(attendanceDatesList.get(counter)); //First column will have the transaction date
+
+                cell = dataRows.createCell(2);
+                cell.setCellValue(checkInCheckOutTimeList.get(counter).checkInDate); //Second column will have check in date
+
+                cell = dataRows.createCell(3);
+                cell.setCellValue(checkInCheckOutTimeList.get(counter).checkInTime); //Third column will have check in time
+
+                cell = dataRows.createCell(4);
+                cell.setCellValue(checkInCheckOutTimeList.get(counter).checkOutDate); //Fourth column will have check out date
+
+                cell = dataRows.createCell(5);
+                cell.setCellValue(checkInCheckOutTimeList.get(counter).checkOutTime); //Fifth column will have check out time
+            }
+
+            // Create a path where we will place our List of objects on external storage
+            String fileName = employeeProfileDetails.employeeCode + employeeProfileDetails.employeeName + "_attendance.xls";
+            final File file = new File(path, fileName);
+            FileOutputStream os = null;
+
+            try
+            {
+                os = new FileOutputStream(file);
+                wb.write(os);
+                Log.w("FileUtils", "Writing file" + file);
+            } catch(IOException e)
+            {
+                Log.w("FileUtils", "Error writing " + file, e);
+            } catch(Exception e)
+            {
+                Log.w("FileUtils", "Failed to save file", e);
+            } finally
+            {
+                try
+                {
+                    if(os != null)
+                    {
+                        os.close();
+                    }
+                } catch(Exception ex)
+                {
+                }
+            }
         }
     }
 
@@ -344,11 +478,25 @@ public class FeatureDisplayFragment extends Fragment
     private void setupAlertDialog()
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Attendance Modifications");
+        builder.setTitle("Details Required!");
 
         final View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.employee_details_dialog, (ViewGroup) getView(), false);
+
         // Set up the employeeCode
-        final EditText employeeCode = (EditText) viewInflated.findViewById(R.id.employeeCode);
+        final EditText employeeCodeEt =  viewInflated.findViewById(R.id.employeeCode);
+        excelFile = viewInflated.findViewById(R.id.excelFile);
+        txtFile = viewInflated.findViewById(R.id.txtFile);
+
+        if(!attendanceReport)
+        {
+            excelFile.setVisibility(View.GONE);
+            txtFile.setVisibility(View.GONE);
+        }
+        if(userType == 2)
+        {
+            employeeCodeEt.setVisibility(View.GONE); //Other type employee can't input employee code
+        }
+
         builder.setView(viewInflated);
         // Set up the buttons
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener()
@@ -357,25 +505,33 @@ public class FeatureDisplayFragment extends Fragment
             public void onClick(DialogInterface dialog, int which)
             {
                 dialog.dismiss();
-                employeeCodeText = employeeCode.getText().toString();
-
-                if(employeeCodeText.equals(""))
+                if(userType == 1) // Admin user
                 {
-                    Toast.makeText(getContext(), "Enter Employee Code", Toast.LENGTH_LONG).show();
-                }
-                else
-                {
-                    if(transactionAttendance)
+                    employeeCodeText = employeeCodeEt.getText().toString();
+                    if(employeeCodeText.equals("")) //Employee code compulsory
                     {
-                        fetchAndDisplayEmployeeDetails(employeeCodeText);
-                        fetchAttendanceReport(employeeCodeText);
+                        Toast.makeText(getContext(), "Enter Employee Code", Toast.LENGTH_LONG).show();
                     }
                     else
                     {
-                        Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, EmployeeRegisterModificationDeletionFragment.newInstance(2, employeeCodeText)) // launch the home fragment if login is successful
-                                .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).addToBackStack("Employee Details Modifications").commit();
+                        if(attendanceReport) //operation for attendance Report
+                        {
+                            fetchAndDisplayEmployeeDetails(employeeCodeText);//Employee Details will be fetched
+                            fetchAttendanceReport(employeeCodeText); //Attendance report of the employee wil be fetched
+                        }
+                        else //For modifying employee details data
+                        {
+                            Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, EmployeeRegisterModificationDeletionFragment.newInstance(2, employeeCodeText)) // launch the home fragment if login is successful
+                                    .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).addToBackStack("Employee Details Modifications").commit();
+                        }
                     }
                 }
+                else //Non admin user will not be able to give any employee code system by default will take his logged in code
+                {
+                    fetchAndDisplayEmployeeDetails(employeeCode);//Employee Details will be fetched
+                    fetchAttendanceReport(employeeCode); //Attendance report of the employee wil be fetched
+                }
+
             }
         });
         builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener()
@@ -386,9 +542,7 @@ public class FeatureDisplayFragment extends Fragment
                 dialog.cancel();
             }
         });
-
         builder.show();
-
     }
 
     private void init(View view)
@@ -398,13 +552,39 @@ public class FeatureDisplayFragment extends Fragment
             userType = getArguments().getInt(CURRENT_USER_TYPE);
             employeeCode = getArguments().getString(CURRENT_EMPLOYEE_CODE);
         }
-        transactionAttendance = false;
-        test = view.findViewById(R.id.test);
+        attendanceReport = false;
         registerEmployee = view.findViewById(R.id.register_employee_button);
         submitAttendance = view.findViewById(R.id.submit_attendance_button);
-        modify_employee_record = view.findViewById(R.id.modify_employee_record);
-        modify_employee_transactions = view.findViewById(R.id.modify_employee_transactions);
+        modifyEmployeeRecord = view.findViewById(R.id.modify_employee_record);
+        modifyEmployeeTransactions = view.findViewById(R.id.modify_employee_transactions);
         getAttendanceReport = view.findViewById(R.id.get_attendance_report);
         progressBar = view.findViewById(R.id.progress_bar);
+    }
+    private void fetchingDataUISet()
+    {
+        progressBar.setVisibility(View.VISIBLE);
+        submitAttendance.setVisibility(View.GONE);
+        registerEmployee.setVisibility(View.GONE);
+        modifyEmployeeTransactions.setVisibility(View.GONE);
+        modifyEmployeeRecord.setVisibility(View.GONE);
+        getAttendanceReport.setVisibility(View.GONE);
+    }
+    private void fetchingDataUIReset()
+    {
+        if(userType == 1)
+        {
+            progressBar.setVisibility(View.INVISIBLE);
+            submitAttendance.setVisibility(View.VISIBLE);
+            registerEmployee.setVisibility(View.VISIBLE);
+            modifyEmployeeTransactions.setVisibility(View.VISIBLE);
+            modifyEmployeeRecord.setVisibility(View.VISIBLE);
+            getAttendanceReport.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            progressBar.setVisibility(View.INVISIBLE);
+            submitAttendance.setVisibility(View.VISIBLE);
+            getAttendanceReport.setVisibility(View.VISIBLE);
+        }
     }
 }
