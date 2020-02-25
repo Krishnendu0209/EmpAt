@@ -35,6 +35,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.Objects;
 
 /**
@@ -46,6 +47,8 @@ public class FeatureDisplayFragment extends Fragment
     private static final String CURRENT_EMPLOYEE_CODE = "current_employee_code";
     private int userType;
     private TextView test;
+    private ArrayList<CheckInCheckOutTime> checkInCheckOutTimeList = new ArrayList<>();
+    private ArrayList<String> attendanceDatesList = new ArrayList<>();
     private DatabaseReference userDataBase, employeeAttendance;
     private String employeeCode, employeeCodeText;
     private Button registerEmployee, submitAttendance, modify_employee_record, modify_employee_transactions, getAttendanceReport;
@@ -178,21 +181,19 @@ public class FeatureDisplayFragment extends Fragment
                                 {
                                     String tempData = userSnapshot.getKey().toString() + " ";
                                     checkInCheckOutTime = userSnapshot.getValue(CheckInCheckOutTime.class);// Assigning the database data to the model object
-                                    tempData = formatAttendanceReport(checkInCheckOutTime, tempData);
-                                    finalData = finalData + tempData + "\n\n";
+                                    attendanceDatesList.add(tempData);//Will contain the parent date nodes
+                                    checkInCheckOutTimeList.add(checkInCheckOutTime); //Will contain the check in check out data nodes
                                 }
                             }
                         }
-                        finalData = formatEmployeeDetails(employeeProfileDetails) + finalData;
-                        test.setText(finalData);
-                        writeToFile(finalData, employeeCode);
-                        progressBar.setVisibility(View.GONE);
-                        if(checkInCheckOutTime != null)
+                        if(checkInCheckOutTimeList != null)
                         {
+                            writeToFile();
                         }
                         else
                         {
                             progressBar.setVisibility(View.GONE);
+                            Toast.makeText(getContext(), "No record found", Toast.LENGTH_LONG).show();
                         }
                     } catch(Exception e)
                     {
@@ -277,10 +278,11 @@ public class FeatureDisplayFragment extends Fragment
         return employeeDetails;
     }
 
-    public void writeToFile(String data, String empCode)
+    public void writeToFile()
     {
         //Downloading to file
-        Toast.makeText(getContext(), "Downloading Attendance Report", Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), "Downloading Attendance Report", Toast.LENGTH_SHORT).show();
+        String tempEmployeeDetails = formatEmployeeDetails(employeeProfileDetails);
         // Get the directory for the user's public pictures directory.
         final File path =
                 Environment.getExternalStoragePublicDirectory
@@ -295,7 +297,7 @@ public class FeatureDisplayFragment extends Fragment
             // Make it, if it doesn't exit
             path.mkdirs();
         }
-        String fileName = empCode + "_attendance.txt";
+        String fileName = employeeProfileDetails.employeeName + "_attendance.txt";
         final File file = new File(path, fileName);
 
         // Save your stream, don't forget to flush() it before closing it.
@@ -305,11 +307,18 @@ public class FeatureDisplayFragment extends Fragment
             file.createNewFile();
             FileOutputStream fOut = new FileOutputStream(file);
             OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
-            myOutWriter.append(data);
+            myOutWriter.append(tempEmployeeDetails);
+            for(int i = 0; i < checkInCheckOutTimeList.size(); i++)
+            {
+                String tempCheckInCheckOutData = formatAttendanceReport(checkInCheckOutTimeList.get(i), attendanceDatesList.get(i));
+                myOutWriter.append(tempCheckInCheckOutData);
+            }
 
             myOutWriter.close();
             fOut.flush();
             fOut.close();
+            Toast.makeText(getContext(), "Download Completed", Toast.LENGTH_SHORT).show();
+            progressBar.setVisibility(View.GONE);
         } catch(FileNotFoundException e)
         {
             e.printStackTrace();
@@ -367,8 +376,8 @@ public class FeatureDisplayFragment extends Fragment
                 {
                     if(transactionAttendance)
                     {
-                        fetchAndDisplayEmployeeDetails(employeeCodeText);
-                        fetchAttendanceReport(employeeCodeText);
+                        fetchAndDisplayEmployeeDetails(employeeCodeText);//Employee Details will be fetched
+                        fetchAttendanceReport(employeeCodeText); //Attendance report of the employee wil be fetched
                     }
                     else
                     {
@@ -407,4 +416,41 @@ public class FeatureDisplayFragment extends Fragment
         getAttendanceReport = view.findViewById(R.id.get_attendance_report);
         progressBar = view.findViewById(R.id.progress_bar);
     }
+
+//    private class AsyncTaskRunner extends AsyncTask<String, String, String>
+//    {
+//
+//        private String resp;
+//        //ProgressDialog progressDialog;
+//
+//        @Override
+//        protected String doInBackground(String... params)
+//        {
+//            publishProgress("Sleeping..."); // Calls onProgressUpdate()
+//            try
+//            {
+//                writeToFile();
+//                return "success";
+//            } catch(Exception e)
+//            {
+//                e.printStackTrace();
+//            }
+//            return "Failed";
+//        }
+//
+//
+//        @Override
+//        protected void onPostExecute(String result)
+//        {
+//            // execution of result of Long time consuming operation
+//            progressBar.setVisibility(View.GONE);
+//        }
+//
+//
+//        @Override
+//        protected void onPreExecute()
+//        {
+//            progressBar.setVisibility(View.VISIBLE);
+//        }
+//    }
 }
