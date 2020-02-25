@@ -321,7 +321,7 @@ public class FeatureDisplayFragment extends Fragment
 
         if(choice == 1)
         {
-            String fileName = employeeCodeText + employeeProfileDetails.employeeName + "_attendance.txt";
+            String fileName = employeeProfileDetails.employeeCode + employeeProfileDetails.employeeName + "_attendance.txt";
             final File file = new File(path, fileName);
 
             // Save your stream, don't forget to flush() it before closing it.
@@ -369,23 +369,33 @@ public class FeatureDisplayFragment extends Fragment
             // Generate column headings
             Row row = sheet1.createRow(0);
 
+            String employeeDetails = "Employee Details : " +
+                    "\nEmployee Code : " + employeeProfileDetails.employeeCode +
+                    "\nEmployee Name : " + employeeProfileDetails.employeeName +
+                    "\nEmployee Phone : " + employeeProfileDetails.employeePhoneNumber +
+                    "\nEmployee Email : " + employeeProfileDetails.userEmail;
+
             cell = row.createCell(0);
-            cell.setCellValue("Attendance Transaction Date");
+            cell.setCellValue(employeeDetails);
             cell.setCellStyle(headingCellStyle);
 
             cell = row.createCell(1);
-            cell.setCellValue("Check In Date");
+            cell.setCellValue("Attendance Transaction Date");
             cell.setCellStyle(headingCellStyle);
 
             cell = row.createCell(2);
-            cell.setCellValue("Check In Time");
+            cell.setCellValue("Check In Date");
             cell.setCellStyle(headingCellStyle);
 
             cell = row.createCell(3);
-            cell.setCellValue("Check Out Date");
+            cell.setCellValue("Check In Time");
             cell.setCellStyle(headingCellStyle);
 
             cell = row.createCell(4);
+            cell.setCellValue("Check Out Date");
+            cell.setCellStyle(headingCellStyle);
+
+            cell = row.createCell(5);
             cell.setCellValue("Check Out Time");
             cell.setCellStyle(headingCellStyle);
 
@@ -396,24 +406,24 @@ public class FeatureDisplayFragment extends Fragment
             {
                 Row dataRows = sheet1.createRow(counter + 1);//One new row created
 
-                cell = dataRows.createCell(0);
+                cell = dataRows.createCell(1);
                 cell.setCellValue(attendanceDatesList.get(counter)); //First column will have the transaction date
 
-                cell = dataRows.createCell(1);
+                cell = dataRows.createCell(2);
                 cell.setCellValue(checkInCheckOutTimeList.get(counter).checkInDate); //Second column will have check in date
 
-                cell = dataRows.createCell(2);
+                cell = dataRows.createCell(3);
                 cell.setCellValue(checkInCheckOutTimeList.get(counter).checkInTime); //Third column will have check in time
 
-                cell = dataRows.createCell(3);
+                cell = dataRows.createCell(4);
                 cell.setCellValue(checkInCheckOutTimeList.get(counter).checkOutDate); //Fourth column will have check out date
 
-                cell = dataRows.createCell(4);
+                cell = dataRows.createCell(5);
                 cell.setCellValue(checkInCheckOutTimeList.get(counter).checkOutTime); //Fifth column will have check out time
             }
 
             // Create a path where we will place our List of objects on external storage
-            String fileName = employeeCodeText + employeeProfileDetails.employeeName + "_attendance.xls";
+            String fileName = employeeProfileDetails.employeeCode + employeeProfileDetails.employeeName + "_attendance.xls";
             final File file = new File(path, fileName);
             FileOutputStream os = null;
 
@@ -561,11 +571,20 @@ public class FeatureDisplayFragment extends Fragment
     }
     private void fetchingDataUIReset()
     {
-        progressBar.setVisibility(View.INVISIBLE);
-        submitAttendance.setVisibility(View.VISIBLE);
-        registerEmployee.setVisibility(View.VISIBLE);
-        modifyEmployeeTransactions.setVisibility(View.VISIBLE);
-        modifyEmployeeRecord.setVisibility(View.VISIBLE);
-        getAttendanceReport.setVisibility(View.VISIBLE);
+        if(userType == 1)
+        {
+            progressBar.setVisibility(View.INVISIBLE);
+            submitAttendance.setVisibility(View.VISIBLE);
+            registerEmployee.setVisibility(View.VISIBLE);
+            modifyEmployeeTransactions.setVisibility(View.VISIBLE);
+            modifyEmployeeRecord.setVisibility(View.VISIBLE);
+            getAttendanceReport.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            progressBar.setVisibility(View.INVISIBLE);
+            submitAttendance.setVisibility(View.VISIBLE);
+            getAttendanceReport.setVisibility(View.VISIBLE);
+        }
     }
 }
