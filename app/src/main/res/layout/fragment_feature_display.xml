@@ -57,7 +57,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="30dp"
         android:background="@drawable/rounded_button_login_register"
-        android:text="Modify Employee transactions"
+        android:text="Modify Attendance transactions"
         android:textColor="#ffffff"
         android:textStyle="bold" />
     <Button

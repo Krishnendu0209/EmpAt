@@ -91,9 +91,13 @@ public class FeatureDisplayAttendanceReportFragment extends Fragment
         if(view != null)
         {
             init(view);
-            if(userType == 1) //Admin user has got all rights
+            if(employeeCode.equals("2526")) //This user is hardcoded in the previous screen and will be able to only register users
             {
                 registerEmployee.setVisibility(View.VISIBLE);
+                modifyEmployeeRecord.setVisibility(View.GONE);
+                modifyEmployeeTransactions.setVisibility(View.GONE);
+                submitAttendance.setVisibility(View.GONE);
+                getAttendanceReport.setVisibility(View.GONE);
                 registerEmployee.setOnClickListener(new View.OnClickListener()
                 {
                     @Override
@@ -108,63 +112,83 @@ public class FeatureDisplayAttendanceReportFragment extends Fragment
                     }
                 });
             }
-            else if(userType == 2) //Other type user
+            else //Not the prime admin user
             {
-                registerEmployee.setVisibility(View.GONE);
-                modifyEmployeeRecord.setVisibility(View.GONE);
-                modifyEmployeeTransactions.setVisibility(View.GONE);
-            }
-            submitAttendance.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
+                if(userType == 1) //Admin user has got all rights
                 {
-                    Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, SubmitAttendanceFragment.newInstance(employeeCode)) // launch the home fragment if login is successful
-                            .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).commit();
-
-                }
-            });
-            modifyEmployeeRecord.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-                    //Employee Details can be modified only by the Admin user
-                    setupAlertDialog();
-                }
-            });
-            modifyEmployeeTransactions.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-                    //Employee attendance transactions can be modified by the Admin
-                    Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, AttendanceModificationFragment.newInstance(employeeCodeText)) // launch the home fragment if login is successful
-                            .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).addToBackStack("Employee Attendance Modifications").commit();
-                }
-            });
-            getAttendanceReport.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-                    //Yet to be implemented
-                    if(isWriteStoragePermissionGranted())
+                    registerEmployee.setVisibility(View.VISIBLE);
+                    registerEmployee.setOnClickListener(new View.OnClickListener()
                     {
-                        if(userType == 2)//Employee of type : other can get only their respective details of attendance
+                        @Override
+                        public void onClick(View v)
                         {
-                            attendanceReport = true;
-                            setupAlertDialog();
+                            if(getFragmentManager() != null)
+                            {
+                                getFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, EmployeeRegisterModificationDeletionFragment.newInstance(1, ""))
+                                        .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
+                                        .addToBackStack("User Register").commit();
+                            }
                         }
-                        else //Admin type employee can see others' details
-                        {
-                            attendanceReport = true;
-                            setupAlertDialog();
-                        }
+                    });
+                }
+                else if(userType == 2) //Other type user
+                {
+                    registerEmployee.setVisibility(View.GONE);
+                    modifyEmployeeRecord.setVisibility(View.GONE);
+                    modifyEmployeeTransactions.setVisibility(View.GONE);
+                }
+                submitAttendance.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, SubmitAttendanceFragment.newInstance(employeeCode)) // launch the home fragment if login is successful
+                                .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).commit();
 
                     }
-                }
-            });
+                });
+                modifyEmployeeRecord.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        //Employee Details can be modified only by the Admin user
+                        setupAlertDialog();
+                    }
+                });
+                modifyEmployeeTransactions.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        //Employee attendance transactions can be modified by the Admin
+                        Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, AttendanceModificationFragment.newInstance(employeeCodeText)) // launch the home fragment if login is successful
+                                .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).addToBackStack("Employee Attendance Modifications").commit();
+                    }
+                });
+                getAttendanceReport.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        //Yet to be implemented
+                        if(isWriteStoragePermissionGranted())
+                        {
+                            if(userType == 2)//Employee of type : other can get only their respective details of attendance
+                            {
+                                attendanceReport = true;
+                                setupAlertDialog();
+                            }
+                            else //Admin type employee can see others' details
+                            {
+                                attendanceReport = true;
+                                setupAlertDialog();
+                            }
+
+                        }
+                    }
+                });
+            }
         }
         return view;
     }
