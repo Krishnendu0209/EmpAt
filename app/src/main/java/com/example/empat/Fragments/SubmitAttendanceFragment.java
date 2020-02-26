@@ -38,7 +38,7 @@ public class SubmitAttendanceFragment extends Fragment
     private String employeeCode;
     private Button checkInAttendance, checkOutAttendance;
     private FirebaseAuth firebaseAuth;
-    String currentTime, currentDate;
+    String currentTime, currentDate, lastCheckOutDate;
     private DatabaseReference employeeCheckInCheckOutDatabaseReference;
     private SimpleDateFormat presentTime, presentDate;
     private ProgressBar progressBar;
@@ -140,6 +140,7 @@ public class SubmitAttendanceFragment extends Fragment
                             if(userSnapshot.getKey().equals(currentDate))
                             {
                                 checkInCheckOutTime = userSnapshot.getValue(CheckInCheckOutTime.class);// Assigning the database data to the model object
+                                lastCheckOutDate = checkInCheckOutTime.checkOutDate;
                             }
                         }
                         updateViewsForCheckOut();
@@ -165,7 +166,15 @@ public class SubmitAttendanceFragment extends Fragment
     private void updateViewsForCheckOut()
     {
         progressBar.setVisibility(View.GONE);
-        checkInCheckOutMessage.setText("Hello\n\n Your last check in was on : !\n\n" + checkInCheckOutTime.getCheckInDate() + " " + checkInCheckOutTime.getCheckInTime());
+        if(lastCheckOutDate.equals("Pending Check Out"))
+        {
+            checkInCheckOutMessage.setText("Hello\n\n Your last check in was on : \n\n" + checkInCheckOutTime.getCheckInDate() + " " + checkInCheckOutTime.getCheckInTime());
+        }
+        else
+        {
+            checkInCheckOutMessage.setText("Hello You Have Already Checked Out\n\n Your last check out was on : \n\n" + checkInCheckOutTime.getCheckOutTime() + " " + checkInCheckOutTime.getCheckOutTime());
+            checkOutAttendance.setText("Update Check Out");
+        }
         checkOutAttendance.setVisibility(View.VISIBLE);
         checkInAttendance.setVisibility(View.GONE);
     }
@@ -192,6 +201,7 @@ public class SubmitAttendanceFragment extends Fragment
             {
                 checkInAttendance.setVisibility(View.GONE);
                 progressBar.setVisibility(View.GONE);
+                checkInCheckOutMessage.setText("Check in Successful!");
                 Toast.makeText(getContext(), "Check In Successful", Toast.LENGTH_SHORT).show();
             }
         }).addOnFailureListener(new OnFailureListener() // If after the task fails after initiation then either connectivity issue or FireBase down or node not found
@@ -218,6 +228,7 @@ public class SubmitAttendanceFragment extends Fragment
             {
                 progressBar.setVisibility(View.GONE);
                 checkOutAttendance.setVisibility(View.GONE);
+                checkInCheckOutMessage.setText("Check Out Successful!");
                 Toast.makeText(getContext(), "Check Out Successful", Toast.LENGTH_SHORT).show();
             }
         }).addOnFailureListener(new OnFailureListener() // If after the task fails after initiation then either connectivity issue or FireBase down or node not found

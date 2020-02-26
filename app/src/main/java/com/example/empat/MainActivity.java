@@ -12,7 +12,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.example.empat.Fragments.FeatureDisplayFragment;
+import com.example.empat.Fragments.FeatureDisplayAttendanceReportFragment;
 import com.example.empat.Model.EmployeeProfileDetails;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity
                     if(employeeCode.equals("2526") && userPassword.equals("2526")) // if code is 2526 then user is of admin category hence can register other users
                     {
                         updateUI(1);
-                        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, FeatureDisplayFragment.newInstance(1, "2526"))
+                        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, FeatureDisplayAttendanceReportFragment.newInstance(1, "2526"))
                                 .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
                                 .addToBackStack("Admin Features").commit();
                     }
@@ -149,13 +149,13 @@ public class MainActivity extends AppCompatActivity
                             updateUI(1);
                             if(employeeProfileDetails.userType.equals("Admin"))
                             {
-                                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, FeatureDisplayFragment.newInstance(1, employeeCode))
+                                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, FeatureDisplayAttendanceReportFragment.newInstance(1, employeeCode))
                                         .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
                                         .addToBackStack("Admin Features").commit();
                             }
                             else
                             {
-                                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, FeatureDisplayFragment.newInstance(2, employeeCode))
+                                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_placeholder, FeatureDisplayAttendanceReportFragment.newInstance(2, employeeCode))
                                         .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
                                         .addToBackStack("Other Features").commit();
                             }

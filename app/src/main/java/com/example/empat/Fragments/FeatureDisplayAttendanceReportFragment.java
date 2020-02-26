@@ -51,7 +51,7 @@ import java.util.Objects;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class FeatureDisplayFragment extends Fragment
+public class FeatureDisplayAttendanceReportFragment extends Fragment
 {
     private static final String CURRENT_USER_TYPE = "current_user_type";
     private static final String CURRENT_EMPLOYEE_CODE = "current_employee_code";
@@ -67,19 +67,19 @@ public class FeatureDisplayFragment extends Fragment
     EmployeeProfileDetails employeeProfileDetails = null;
     Boolean attendanceReport; // To understand dialog is for attendance report fetch or modifying employee record
     private RadioButton txtFile, excelFile;
-    public FeatureDisplayFragment()
+    public FeatureDisplayAttendanceReportFragment()
     {
         // Required empty public constructor
     }
 
-    public static FeatureDisplayFragment newInstance(int userType, String employeeCode)
+    public static FeatureDisplayAttendanceReportFragment newInstance(int userType, String employeeCode)
     {
-        FeatureDisplayFragment featureDisplayFragment = new FeatureDisplayFragment();
+        FeatureDisplayAttendanceReportFragment featureDisplayAttendanceReportFragment = new FeatureDisplayAttendanceReportFragment();
         Bundle args = new Bundle();
         args.putInt(CURRENT_USER_TYPE, userType); // 1- denotes admin rights and 2- denotes general employee
         args.putString(CURRENT_EMPLOYEE_CODE, employeeCode);
-        featureDisplayFragment.setArguments(args);
-        return featureDisplayFragment;
+        featureDisplayAttendanceReportFragment.setArguments(args);
+        return featureDisplayAttendanceReportFragment;
     }
 
     @Override
@@ -182,7 +182,6 @@ public class FeatureDisplayFragment extends Fragment
                 {
                     try
                     {
-                        fetchingDataUISet();
                         progressBar.setVisibility(View.VISIBLE);
                         for(DataSnapshot employeeDateSnapshot : dataSnapshot.getChildren())
                         {
@@ -210,7 +209,6 @@ public class FeatureDisplayFragment extends Fragment
                         }
                         else
                         {
-                            fetchingDataUIReset();
                             progressBar.setVisibility(View.GONE);
                             Toast.makeText(getContext(), "No record found", Toast.LENGTH_LONG).show();
                         }
@@ -224,7 +222,6 @@ public class FeatureDisplayFragment extends Fragment
                     //Employee Code not found
                     Toast.makeText(getContext(), "Employee Code Not Found", Toast.LENGTH_LONG).show();
                 }
-                fetchingDataUIReset();
             }
 
             @Override
@@ -246,7 +243,6 @@ public class FeatureDisplayFragment extends Fragment
             {
                 if(dataSnapshot.hasChild(employeeCode))
                 {
-                    fetchingDataUISet();
                     try
                     {
                         for(DataSnapshot userSnapshot : dataSnapshot.getChildren())
@@ -302,7 +298,6 @@ public class FeatureDisplayFragment extends Fragment
     public void writeToFile(int choice)
     {
         //Downloading to file
-        Toast.makeText(getContext(), "Downloading Attendance Report", Toast.LENGTH_SHORT).show();
         String tempEmployeeDetails = formatEmployeeDetails(employeeProfileDetails);
         // Get the directory for the user's public pictures directory.
         final File path =
@@ -343,6 +338,7 @@ public class FeatureDisplayFragment extends Fragment
                 fOut.close();
                 Toast.makeText(getContext(), "Download Completed", Toast.LENGTH_SHORT).show();
                 progressBar.setVisibility(View.GONE);
+                fetchingDataUIReset();
             } catch(FileNotFoundException e)
             {
                 e.printStackTrace();
@@ -432,6 +428,7 @@ public class FeatureDisplayFragment extends Fragment
                 os = new FileOutputStream(file);
                 wb.write(os);
                 Log.w("FileUtils", "Writing file" + file);
+                Toast.makeText(getContext(), "Download Completed", Toast.LENGTH_SHORT).show();
             } catch(IOException e)
             {
                 Log.w("FileUtils", "Error writing " + file, e);
@@ -450,6 +447,7 @@ public class FeatureDisplayFragment extends Fragment
                 {
                 }
             }
+            fetchingDataUIReset();
         }
     }
 
@@ -516,6 +514,7 @@ public class FeatureDisplayFragment extends Fragment
                     {
                         if(attendanceReport) //operation for attendance Report
                         {
+                            fetchingDataUISet();
                             fetchAndDisplayEmployeeDetails(employeeCodeText);//Employee Details will be fetched
                             fetchAttendanceReport(employeeCodeText); //Attendance report of the employee wil be fetched
                         }
@@ -562,6 +561,7 @@ public class FeatureDisplayFragment extends Fragment
     }
     private void fetchingDataUISet()
     {
+        Toast.makeText(getContext(), "Downloading Attendance Report", Toast.LENGTH_SHORT).show();
         progressBar.setVisibility(View.VISIBLE);
         submitAttendance.setVisibility(View.GONE);
         registerEmployee.setVisibility(View.GONE);
