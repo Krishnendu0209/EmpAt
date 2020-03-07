@@ -30,3 +30,7 @@ Only employee code and password is all that is required for the employee to subm
 * #### Submit Attendance -- Where an user can submit their respective check in and check out times. -- Available to both other user and admin user.
 * #### Get Attendance Report -- If user is Other user then he/she will be able to fetch only their own attandance report whereas if the user is of Admin type then he / she can get any other emloyee's attendance report, finally the report will be saved in the device.
 
+### Process Flow Chart
+
+
+![solarized vim](https://github.com/Krishnendu0209/EmpAt/blob/master/Process_Flow_Chart.jpg)
