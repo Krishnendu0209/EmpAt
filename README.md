@@ -1,8 +1,8 @@
 # EmpAt
 
-An online employee attendance system where employees can check in an check out their respective attendance timings,
-irrespective of the android device whether they do it from thier own device or from someone else's device.
-Only employee code and password is all that is required for the employee to submit their attendance hence marking attendance at the tp of their fingertips.
+An online employee attendance system where employees can check in and check out their respective attendance timings,
+irrespective of the android device whether they do it from their own device or from someone else's device.
+Only employee code and password are all that is required for the employee to submit their attendance hence marking attendance at the tip of their fingers.
 
 ## Online Database
 * FireBase Realtime DataBase
