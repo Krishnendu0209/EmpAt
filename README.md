@@ -7,7 +7,7 @@ Only employee code and password are all that is required for the employee to sub
 ## Online Database
 * FireBase Realtime DataBase
 ## Online authentication
-* FireBase Email Authentication
+* FireBase Realtime DataBase
 
 
 ## Assumptions And Business Cases Considered
